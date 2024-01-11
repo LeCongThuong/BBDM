@@ -16,10 +16,10 @@ data:
   dataset_name: 'dataset_name'
   dataset_type: 'custom_aligned'
   dataset_config:
-    dataset_path: 'dataset_path'
-    image_size: 256
-    channels: 3
-    to_normal: True
+    dataset_path: '/mnt/hmi/thuong/wb_train_val_test_dataset/'
+    image_size: 512
+    channels: 1
+    to_normal: False
     flip: True
   train:
     batch_size: 8
@@ -48,20 +48,44 @@ model:
 
   CondStageParams:
     n_stages: 3
-    in_channels: 3
-    out_channels: 4
+    in_channels: 1
+    out_channels: 1
 
   VQGAN:
-    params:
-      ckpt_path: 'results/VQGAN-new/CelebAMaskHQ-f8.ckpt'
+    params_print:
+      ckpt_path: '/mnt/thuong_mocban/taming-transformers/logs/2024-01-09T18-54-18_print_woodblock_vqgan/checkpoints/last.ckpt'
+      embed_dim: 4
+      n_embed: 16384
+      ddconfig:
+        double_z: false
+        z_channels: 4
+        resolution: 512
+        in_channels: 1
+        out_ch: 1
+        ch: 128
+        ch_mult: !!python/tuple
+          - 1
+          - 2
+          - 2
+          - 4
+        num_res_blocks: 2
+        attn_resolutions:
+          - 32
+        dropout: 0.0
+
+      lossconfig:
+        target: torch.nn.Identity
+
+    params_depth:
+      ckpt_path: '/mnt/thuong_mocban/taming-transformers/logs/2024-01-10T13-32-00_depth_woodblock_vqgan/checkpoints/last.ckpt'
       embed_dim: 4
       n_embed: 16384
       ddconfig:
         double_z: false
         z_channels: 4
         resolution: 256
-        in_channels: 3
-        out_ch: 3
+        in_channels: 1
+        out_ch: 1
         ch: 128
         ch_mult: !!python/tuple
           - 1
@@ -104,7 +128,7 @@ model:
       max_var: 1.0 # maximum variance
 
       UNetParams:
-        image_size: 32
+        image_size: 64
         in_channels: 4
         model_channels: 128
         out_channels: 4

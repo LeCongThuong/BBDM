@@ -20,17 +20,23 @@ class LatentBrownianBridgeModel(BrownianBridgeModel):
     def __init__(self, model_config):
         super().__init__(model_config)
 
-        self.vqgan = VQModel(**vars(model_config.VQGAN.params)).eval()
-        self.vqgan.train = disabled_train
-        for param in self.vqgan.parameters():
+        self.vqgan_print = VQModel(**vars(model_config.VQGAN.params_print)).eval()
+        self.vqgan_print.train = disabled_train
+        for param in self.vqgan_print.parameters():
             param.requires_grad = False
-        print(f"load vqgan from {model_config.VQGAN.params.ckpt_path}")
+        print(f"load vqgan from {model_config.VQGAN.params_print.ckpt_path}")
+        
+        self.vqgan_depth = VQModel(**vars(model_config.VQGAN.params_depth)).eval()
+        self.vqgan_depth.train = disabled_train
+        for param in self.vqgan_depth.parameters():
+            param.requires_grad = False
+        print(f"load vqgan from {model_config.VQGAN.params_depth.ckpt_path}")
 
         # Condition Stage Model
         if self.condition_key == 'nocond':
             self.cond_stage_model = None
         elif self.condition_key == 'first_stage':
-            self.cond_stage_model = self.vqgan
+            self.cond_stage_model = self.vqgan_print
         elif self.condition_key == 'SpatialRescaler':
             self.cond_stage_model = SpatialRescaler(**vars(model_config.CondStageParams))
         else:
@@ -73,7 +79,11 @@ class LatentBrownianBridgeModel(BrownianBridgeModel):
     @torch.no_grad()
     def encode(self, x, cond=True, normalize=None):
         normalize = self.model_config.normalize_latent if normalize is None else normalize
-        model = self.vqgan
+        if cond:
+            model = self.vqgan_print
+        else:
+            model = self.vqgan_depth
+            
         x_latent = model.encoder(x)
         if not self.model_config.latent_before_quant_conv:
             x_latent = model.quant_conv(x_latent)
@@ -92,7 +102,7 @@ class LatentBrownianBridgeModel(BrownianBridgeModel):
                 x_latent = x_latent * self.cond_latent_std + self.cond_latent_mean
             else:
                 x_latent = x_latent * self.ori_latent_std + self.ori_latent_mean
-        model = self.vqgan
+        model = self.vqgan_depth
         if self.model_config.latent_before_quant_conv:
             x_latent = model.quant_conv(x_latent)
         x_latent_quant, loss, _ = model.quantize(x_latent)
@@ -135,13 +145,3 @@ class LatentBrownianBridgeModel(BrownianBridgeModel):
     def sample_vqgan(self, x):
         x_rec, _ = self.vqgan(x)
         return x_rec
-
-    # @torch.no_grad()
-    # def reverse_sample(self, x, skip=False):
-    #     x_ori_latent = self.vqgan.encoder(x)
-    #     temp, _ = self.brownianbridge.reverse_p_sample_loop(x_ori_latent, x, skip=skip, clip_denoised=False)
-    #     x_latent = temp[-1]
-    #     x_latent = self.vqgan.quant_conv(x_latent)
-    #     x_latent_quant, _, _ = self.vqgan.quantize(x_latent)
-    #     out = self.vqgan.decode(x_latent_quant)
-    #     return out

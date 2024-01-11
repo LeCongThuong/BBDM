@@ -5,8 +5,8 @@ from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
 from Register import Registers
-from datasets.base import ImagePathDataset
-from datasets.utils import get_image_paths_from_dir
+from datasets.base import ImagePathDataset, NumpyDepthPaths, PrintPaths
+from datasets.utils import get_image_paths_from_dir, get_image_paths_from_dir_2
 from PIL import Image
 import cv2
 import os
@@ -35,13 +35,11 @@ class CustomAlignedDataset(Dataset):
     def __init__(self, dataset_config, stage='train'):
         super().__init__()
         self.image_size = (dataset_config.image_size, dataset_config.image_size)
-        image_paths_ori = get_image_paths_from_dir(os.path.join(dataset_config.dataset_path, f'{stage}/B'))
-        image_paths_cond = get_image_paths_from_dir(os.path.join(dataset_config.dataset_path, f'{stage}/A'))
-        self.flip = dataset_config.flip if stage == 'train' else False
-        self.to_normal = dataset_config.to_normal
+        image_paths_ori = get_image_paths_from_dir_2(os.path.join(dataset_config.dataset_path, f'{stage}/np_depth_512'), img_tag="npy")
+        image_paths_cond = get_image_paths_from_dir_2(os.path.join(dataset_config.dataset_path, f'{stage}/print_512'), img_tag="png")
 
-        self.imgs_ori = ImagePathDataset(image_paths_ori, self.image_size, flip=self.flip, to_normal=self.to_normal)
-        self.imgs_cond = ImagePathDataset(image_paths_cond, self.image_size, flip=self.flip, to_normal=self.to_normal)
+        self.imgs_ori = NumpyDepthPaths(image_paths_ori, (self.image_size, self.image_size))
+        self.imgs_cond = PrintPaths(image_paths_cond, (self.image_size, self.image_size))
 
     def __len__(self):
         return len(self.imgs_ori)
