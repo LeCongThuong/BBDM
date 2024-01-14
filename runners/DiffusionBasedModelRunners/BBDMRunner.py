@@ -79,7 +79,7 @@ class BBDMRunner(DiffusionBaseRunner):
                 model_states['ori_latent_mean'] = self.net.ori_latent_mean
                 model_states['ori_latent_std'] = self.net.ori_latent_std
                 model_states['cond_latent_mean'] = self.net.cond_latent_mean
-                model_states['cond_latent_std'] = self.net.cond_latent_std
+                model_states['cond_latent_std'] = self.net.cond_latent_stdFV
         return model_states, optimizer_scheduler_states
 
     def get_latent_mean_std(self):

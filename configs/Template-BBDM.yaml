@@ -99,5 +99,5 @@ model:
         use_scale_shift_norm: True
         resblock_updown: True
         use_spatial_transformer: False
-        context_dim:
+        context_dim: 
         condition_key: "SpatialRescaler" # options {"SpatialRescaler", "first_stage", "nocond"}

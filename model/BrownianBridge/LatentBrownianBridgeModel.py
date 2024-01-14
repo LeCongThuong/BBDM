@@ -36,7 +36,7 @@ class LatentBrownianBridgeModel(BrownianBridgeModel):
         if self.condition_key == 'nocond':
             self.cond_stage_model = None
         elif self.condition_key == 'first_stage':
-            self.cond_stage_model = self.vqgan_print
+            self.cond_stage_model = None #self.vqgan_print
         elif self.condition_key == 'SpatialRescaler':
             self.cond_stage_model = SpatialRescaler(**vars(model_config.CondStageParams))
         else:
@@ -69,7 +69,7 @@ class LatentBrownianBridgeModel(BrownianBridgeModel):
 
     def get_cond_stage_context(self, x_cond):
         if self.cond_stage_model is not None:
-            context = self.cond_stage_model(x_cond)
+            context, _ = self.cond_stage_model(x_cond)
             if self.condition_key == 'first_stage':
                 context = context.detach()
         else:
