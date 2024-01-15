@@ -235,7 +235,7 @@ class BBDMRunner(DiffusionBaseRunner):
             x_cond = x_cond.to(self.config.training.device[0])
 
             for j in range(sample_num):
-                sample = net.sample(x_cond, clip_denoised=False)
+                sample = net.sample(x_cond, clip_denoised=False, sample_mid_step=False)
                 # sample = net.sample_vqgan(x)
                 for i in range(batch_size):
                     condition = x_cond[i].detach().clone()
@@ -245,7 +245,7 @@ class BBDMRunner(DiffusionBaseRunner):
                     if j == 0:
                         # print("In sample_to_eval, save image: ", condition.shape)
                         save_single_image(condition, condition_path, f'{x_cond_name[i]}.png', to_normal=to_normal)
-                        save_single_depth_image(gt, gt_path, f'{x_name[i]}.png', to_normal=to_normal)
+                        save_single_depth_image(gt, gt_path, f'{x_name[i]}.npy', to_normal=to_normal)
                     if sample_num > 1:
                         result_path_i = make_dir(os.path.join(result_path, x_name[i]))
                         save_single_depth_image(result, result_path_i, f'output_{j}.npy', to_normal=to_normal)

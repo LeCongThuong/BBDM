@@ -10,7 +10,7 @@ training:
 
 testing:
   clip_denoised: False
-  sample_num: 5
+  sample_num: 1
 
 data:
   dataset_name: 'dataset_name'
