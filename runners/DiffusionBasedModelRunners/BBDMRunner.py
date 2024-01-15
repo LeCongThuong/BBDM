@@ -8,7 +8,7 @@ from Register import Registers
 from model.BrownianBridge.BrownianBridgeModel import BrownianBridgeModel
 from model.BrownianBridge.LatentBrownianBridgeModel import LatentBrownianBridgeModel
 from runners.DiffusionBasedModelRunners.DiffusionBaseRunner import DiffusionBaseRunner
-from runners.utils import weights_init, get_optimizer, get_dataset, make_dir, get_image_grid, save_single_image
+from runners.utils import weights_init, get_optimizer, get_dataset, make_dir, get_image_grid, save_single_image, save_single_depth_image
 from tqdm.autonotebook import tqdm
 from torchsummary import summary
 
@@ -241,11 +241,13 @@ class BBDMRunner(DiffusionBaseRunner):
                     condition = x_cond[i].detach().clone()
                     gt = x[i]
                     result = sample[i]
+                    # print("Shape in sample_to_eval: ", condition.shape, gt.shape, result.shape)
                     if j == 0:
+                        # print("In sample_to_eval, save image: ", condition.shape)
                         save_single_image(condition, condition_path, f'{x_cond_name[i]}.png', to_normal=to_normal)
-                        save_single_image(gt, gt_path, f'{x_name[i]}.png', to_normal=to_normal)
+                        save_single_depth_image(gt, gt_path, f'{x_name[i]}.png', to_normal=to_normal)
                     if sample_num > 1:
                         result_path_i = make_dir(os.path.join(result_path, x_name[i]))
-                        save_single_image(result, result_path_i, f'output_{j}.png', to_normal=to_normal)
+                        save_single_depth_image(result, result_path_i, f'output_{j}.npy', to_normal=to_normal)
                     else:
-                        save_single_image(result, result_path, f'{x_name[i]}.png', to_normal=to_normal)
+                        save_single_depth_image(result, result_path, f'{x_name[i]}.npy', to_normal=to_normal)

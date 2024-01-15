@@ -6,6 +6,7 @@ from datetime import datetime
 from torchvision.utils import make_grid, save_image
 from Register import Registers
 from datasets.custom import CustomSingleDataset, CustomAlignedDataset, CustomInpaintingDataset
+import numpy as np
 
 
 def remove_file(fpath):
@@ -60,7 +61,7 @@ def get_optimizer(optim_config, parameters):
 def get_dataset(data_config):
     train_dataset = Registers.datasets[data_config.dataset_type](data_config.dataset_config, stage='train')
     val_dataset = Registers.datasets[data_config.dataset_type](data_config.dataset_config, stage='valid')
-    test_dataset = Registers.datasets[data_config.dataset_type](data_config.dataset_config, stage='valid')
+    test_dataset = Registers.datasets[data_config.dataset_type](data_config.dataset_config, stage='test')
     return train_dataset, val_dataset, test_dataset
 
 
@@ -69,9 +70,20 @@ def save_single_image(image, save_path, file_name, to_normal=True):
     image = image.detach().clone()
     if to_normal:
         image = image.mul_(0.5).add_(0.5).clamp_(0, 1.)
-    image = image.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
+   
+    image = image.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy().squeeze()
+    # print("In save_single_image, image.shape = ", image.shape)
     im = Image.fromarray(image)
     im.save(os.path.join(save_path, file_name))
+
+
+@torch.no_grad()
+def save_single_depth_image(image, save_path, file_name, to_normal=True):
+    image = image.detach().clone()
+    image = image.permute(1, 2, 0).to('cpu').numpy()
+    # save numpy depth to npy
+    np.save(os.path.join(save_path, file_name), image)
+
 
 
 @torch.no_grad()
