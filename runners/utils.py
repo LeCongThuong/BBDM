@@ -49,6 +49,9 @@ def get_optimizer(optim_config, parameters):
     if optim_config.optimizer == 'Adam':
         return torch.optim.Adam(parameters, lr=optim_config.lr, weight_decay=optim_config.weight_decay,
                                 betas=(optim_config.beta1, 0.999))
+    elif optim_config.optimizer == 'AdamW':
+        return torch.optim.AdamW(parameters, lr=optim_config.lr, weight_decay=optim_config.weight_decay,
+                                betas=(optim_config.beta1, 0.999))
     elif optim_config.optimizer == 'RMSProp':
         return torch.optim.RMSprop(parameters, lr=optim_config.lr, weight_decay=optim_config.weight_decay)
     elif optim_config.optimizer == 'SGD':

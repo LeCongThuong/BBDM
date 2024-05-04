@@ -22,17 +22,17 @@ data:
     to_normal: False
     flip: True
   train:
-    batch_size: 8
+    batch_size: 16
     shuffle: True
   val:
-    batch_size: 8
+    batch_size: 16
     shuffle: True
   test:
-    batch_size: 8
+    batch_size: 16
     # shuffle: False
 
 model:
-  model_name: "LBBDM-f8-condition" # part of result path
+  model_name: "LBBDM-f8-condition-longer-adamw-autoencoder" # part of result path
   model_type: "LBBDM" # specify a module
   latent_before_quant_conv: False
   normalize_latent: False
@@ -53,7 +53,7 @@ model:
 
   VQGAN:
     params_print:
-      ckpt_path: '/mnt/thuong_mocban/taming-transformers/logs/2024-01-09T18-54-18_print_woodblock_vqgan/checkpoints/last.ckpt'
+      ckpt_path: '/mnt/thuong_mocban/taming-transformers/logs/2024-01-20T06-55-04_print_woodblock_vqgan/checkpoints/last.ckpt'
       embed_dim: 4
       n_embed: 16384
       ddconfig:
@@ -64,6 +64,7 @@ model:
         out_ch: 1
         ch: 128
         ch_mult: !!python/tuple
+          - 1
           - 1
           - 2
           - 2
@@ -77,7 +78,7 @@ model:
         target: torch.nn.Identity
 
     params_depth:
-      ckpt_path: '/mnt/thuong_mocban/taming-transformers/logs/2024-01-10T13-32-00_depth_woodblock_vqgan/checkpoints/last.ckpt'
+      ckpt_path: '/mnt/thuong_mocban/taming-transformers/logs/2024-01-22T20-19-51_depth_woodblock_vqgan/checkpoints/last.ckpt'
       embed_dim: 4
       n_embed: 16384
       ddconfig:
@@ -88,6 +89,7 @@ model:
         out_ch: 1
         ch: 128
         ch_mult: !!python/tuple
+          - 1
           - 1
           - 2
           - 2
@@ -102,9 +104,9 @@ model:
 
   BB:
     optimizer:
-      weight_decay: 0.000
-      optimizer: 'Adam'
-      lr: 1.e-4
+      weight_decay: 0.0001
+      optimizer: 'AdamW'
+      lr: 5.e-5
       beta1: 0.9
 
     lr_scheduler:
@@ -128,7 +130,7 @@ model:
       max_var: 1.0 # maximum variance
 
       UNetParams:
-        image_size: 64
+        image_size: 32
         in_channels: 8
         model_channels: 128
         out_channels: 4
@@ -143,7 +145,7 @@ model:
           - 8
         conv_resample: True
         dims: 2
-        num_heads: 8
+        num_heads: 32
         num_head_channels: 64
         use_scale_shift_norm: True
         resblock_updown: True
